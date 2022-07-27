@@ -1,0 +1,28 @@
+load("general.ric")
+
+depths = getLinesAsInts("inputs/1.txt")
+# Part 1
+raiseMax = 0
+raiseCount = 0
+prevDepth = depths[0]
+. ( depths ... depth ) {
+  ? [ depth > prevDepth ] {
+    raiseCount += 1
+  }
+  prevDepth = depth 
+}
+print("Part 1: " + raiseCount)
+# Part 2
+i = 0
+prevSum = 9999999
+raiseCount = 0
+. [ i < len(depths) - 2 ] {
+  sums = sum([depths[i],depths[i+1],depths[i+2]])
+  ? [ sums > prevSum ] {
+    raiseCount += 1
+  }
+  prevSum = sums
+  i += 1
+  @
+}
+print("Part 2: " + raiseCount)

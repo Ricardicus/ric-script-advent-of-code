@@ -1,0 +1,11 @@
+load("general.ric")
+
+moves = getLines("inputs/2.txt")
+horisontal = 0
+depth = 0
+. ( moves ... move ) {
+   action = move.split(" ")
+   val = parseInt(action[1])
+   action[1] = val
+   print(action)
+}
