@@ -3,9 +3,40 @@ load("general.ric")
 moves = getLines("inputs/2.txt")
 horisontal = 0
 depth = 0
+
 . ( moves ... move ) {
    action = move.split(" ")
    val = parseInt(action[1])
-   action[1] = val
-   print(action)
+   direction = action[0]
+   
+   ? [ direction == "up" ] {
+      depth -= val
+   } ~[ direction == "down" ] {
+      depth += val
+   } ~[ direction == "forward" ] {
+      horisontal += val
+   }
 }
+
+print("Part 1: " + (horisontal * depth))
+
+aim = 0
+depth = 0
+horisontal = 0
+. ( moves ... move ) {
+   action = move.split(" ")
+   val = parseInt(action[1])
+   direction = action[0]
+   
+   ? [ direction == "up" ] {
+      aim -= val
+   } ~[ direction == "down" ] {
+      aim += val
+   } ~[ direction == "forward" ] {
+      horisontal += val
+      depth += aim * val
+   }
+}
+
+print("Part 2: " + (horisontal * depth))
+
