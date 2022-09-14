@@ -1,0 +1,93 @@
+load("general.ric")
+
+input = getLines("inputs/3.txt")
+input_len = input.len()
+width = len(input[0])
+results = [(width ... i) { 0 }]
+
+. ( input ... line ) {
+   . ( width ... i ) {
+      results[i] += parseInt(line[i])
+   }
+}
+
+gamma_rate = ""
+epsilon_rate = ""
+. ( results ... r ) {
+   ? [ r > input_len/2 ] {
+      gamma_rate += "1"
+      epsilon_rate += "0"
+   } ~ {
+      gamma_rate += "0"
+      epsilon_rate += "1"
+   }
+}
+
+gamma_rate = intBase(gamma_rate, 2)
+epsilon_rate = intBase(epsilon_rate, 2)
+
+print("Part 1: " + gamma_rate * epsilon_rate)
+
+@ determineLeastCommonBit(range, position) {
+   range_len = range.len()
+   ones = 0
+   . ( range ... r ) {
+      ? [ r[position] == "1" ] {
+         ones += 1
+      }
+   }
+   zeros = range_len - ones
+  
+   ? [ zeros <= ones ] {
+      -> "0"
+   }
+   -> "1"
+}
+
+@ determineMostCommonBit(range, position) {
+   range_len = range.len()
+   ones = 0
+   . ( range ... r ) {
+      ? [ r[position] == "1" ] {
+         ones += 1
+      }
+   }
+   zeros = range_len - ones
+   
+   ? [ ones >= zeros ] {
+      -> "1"
+   }
+   -> "0"
+}
+
+@ getInputsStartingWith(start) {
+   -> [ (input ... i) { ? [ i.startsWith(start) ] { i } } ]
+}
+
+@ getCOTwoRating() {  
+  result = ""
+  range = input
+  pos = 0
+  . [ range.len() > 1 ] {
+    result += determineLeastCommonBit(range, pos)
+    range = getInputsStartingWith(result)
+    pos += 1
+    @
+  }
+  -> intBase(range[0], 2)
+}
+
+@ getOxygenRating() {
+  result = ""
+  range = input
+  pos = 0
+  . [ range.len() > 1 ] {
+    result += determineMostCommonBit(range, pos)
+    range = getInputsStartingWith(result)
+    pos += 1
+    @
+  }
+  -> intBase(range[0], 2)
+}
+print("Part 3: " + getOxygenRating() * getCOTwoRating())
+
