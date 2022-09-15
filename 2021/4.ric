@@ -1,0 +1,183 @@
+load("general.ric")
+
+# Processing the input data
+lines = getLines("inputs/4.txt")
+numbers = [ ( split(lines[0], ",") ... i ) { parseInt(i) } ]
+bingo_charts_data = [ (lines[2:] ... l) { ? [ l.len() > 1 ] { l } }]
+bingo_charts = []
+current_chart = []
+
+i = 1
+. [ i <= bingo_charts_data.len() ] {
+   current_chart.append(bingo_charts_data[i-1])
+   ? [ i % 5 == 0 ] {
+      bingo_charts.append(current_chart)
+      current_chart = []
+   }
+   i += 1
+   @
+}
+
+@ convertRawChartToInts(rawChart) {
+   -> [ ( rawChart ... i ) { q = i.split(" ") . ( q ... qi ) { ? [ qi.len() > 0 ] { [parseInt(qi), 0] } } } ]
+}
+
+;; bingo ;; {
+   bingo_tables = 0
+
+   @ addTable(table) {
+      bingo_tables = table
+   }
+
+   @ printTable(index) {
+      print(bingo_tables[index])
+   }
+
+   @ getNbrTables() {
+      -> bingo_tables.len()
+   }
+
+   @ addNumber(number) {
+      i = 0
+      . [ i < bingo_tables.len() ] {
+         t = 0
+         . [ t < len(bingo_tables[i]) ] {
+            c = 0
+            . [ c < len(bingo_tables[i][t]) ] {
+               ? [ bingo_tables[i][t][c][0] == number ] {
+                  bingo_tables[i][t][c][1] = 1
+               }
+               c += 1 @
+            }
+            t += 1 @
+         } 
+         i += 1 @
+      }
+   }
+
+   @ getTable(index) {
+      -> bingo_tables[index]
+   }
+
+   @ uncheckedTables() {
+      unchecked = []
+      . ( len(bingo_tables) ... i ) {
+         ? [ checkTable(i) == 0 ] {
+            unchecked.append(i)
+         }
+      }
+      -> unchecked
+   }
+
+   @ checkTables() {
+      . ( len(bingo_tables) ... i ) {
+         ? [ checkTable(i) == 1 ] {
+            -> i
+         }
+      }
+      -> -1
+   }
+
+   @ unmarkedCount(index) {
+      t = bingo_tables[index]
+      count = 0
+      r = 0
+      . [ r < len(t) ] {
+         c = 0
+         . [ c < len(t[r]) ] { 
+            ? [ t[r][c][1] == 0 ] {
+               count += t[r][c][0]
+            }
+            c += 1@
+         }
+         r += 1@
+      }
+      -> count
+   }
+
+   @ checkTable(index) {
+      t = bingo_tables[index]
+      # Check rows
+      r = 0
+      . [ r < t.len() ] {
+         c = 0
+         markedCount = 0
+         . [ c < len(t[r]) ] {
+            ? [ t[r][c][1] == 1] {
+               markedCount += 1
+            }
+            c += 1 @
+         }
+         # Row fully marked?
+         ? [ markedCount == len(t[r]) ] {
+            -> 1
+         }
+         r += 1 @
+      }
+      # Check columns
+      c = 0
+      . [ c < len(t[0]) ] {
+         r = 0
+         markedCount = 0
+         . [ r < len(t) ] {
+            ? [ t[r][c][1] == 1] {
+               markedCount += 1
+            }
+            r += 1 @
+         }
+         # Column fully marked?
+         ? [ markedCount == len(t[0]) ] {
+            -> 1
+         }
+         c += 1 @
+      }
+      -> 0
+   }
+
+}
+
+i = 0
+. [ i < bingo_charts.len() ] {
+   bingo_charts[i] = convertRawChartToInts(bingo_charts[i]) 
+   i += 1 @
+}
+
+bingo = bingo()
+bingo::addTable(bingo_charts)
+
+# Part 1
+q = 0
+. [ q < numbers.len() ] {
+   n = numbers[q]
+   bingo::addNumber(n)
+   t = bingo::checkTables()
+   ? [ t >= 0 ] {
+      # Count the unmarked
+      count = bingo::unmarkedCount(t)
+      print("Part 1: " + n*count)
+   } ~ {
+      q += 1 @
+   }
+}
+
+# Part 2
+bingo::addTable(bingo_charts)
+q = 0
+. [ q < numbers.len() ] {
+   n = numbers[q]
+   bingo::addNumber(n)
+   t = bingo::uncheckedTables()
+   ? [ len(t) == 1 ] {
+      . [ bingo::checkTable(t[0]) == 0 && q < numbers.len() ] {
+         q += 1
+         n = numbers[q]
+         bingo::addNumber(n)
+         @
+      }
+      # Count the unmarked
+      count = bingo::unmarkedCount(t[0])
+      print("Part 2: " + n*count)
+   } ~ {
+      q += 1 @
+   }
+}
