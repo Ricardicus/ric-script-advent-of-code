@@ -1,0 +1,136 @@
+load('general.ric')
+
+;; oceanFloor ;; {
+   floor = []
+   maxSize = 1000
+
+   @ oceanFloor() {
+       . ( maxSize ... x ) {
+         floor.append([])
+         . ( maxSize ... y ) {
+            append(floor[x], 0)
+         }
+       }
+   }
+
+   @ addLinePartOne(x1,y1,x2,y2) {
+      xw = x1
+      yw = y1
+      xstop = x2
+      ystop = y2
+
+      ? [ x1 == x2 ] {
+      	? [ y1 > y2 ] {
+            ystop = y1
+	    yw = y2
+         }
+
+         . [ yw <= ystop ] {
+	    floor[xw][yw] += 1
+            yw += 1 @
+         }
+
+      } ~[ y1 == y2 ] {
+	? [ x1 > x2 ] {
+            xstop = x1
+	    xw = x2
+         }
+
+         . [ xw <= xstop ] {
+            floor[xw][yw] += 1
+            xw += 1 @
+         }
+      }
+   }
+
+   @ addLinePartTwo(x1,y1,x2,y2) {
+      xw = x1
+      yw = y1
+      xstop = x2
+      ystop = y2
+
+      ? [ x1 == x2 ] {
+      	? [ y1 > y2 ] {
+            ystop = y1
+	    yw = y2
+         }
+
+         . [ yw <= ystop ] {
+	    floor[xw][yw] += 1
+            yw += 1 @
+         }
+
+      } ~[ y1 == y2 ] {
+	? [ x1 > x2 ] {
+            xstop = x1
+	    xw = x2
+         }
+
+         . [ xw <= xstop ] {
+            floor[xw][yw] += 1
+            xw += 1 @
+         }
+      } ~ {
+      	dx = 1
+	dy = 1
+	? [ x1 > x2 ] {
+	  dx = -1
+	}
+	? [ y1 > y2 ] {
+	  dy = -1
+	}
+	. [ xw != xstop && yw != ystop ] {
+          floor[xw][yw] += 1
+	  yw += dy
+	  xw += dx @
+	}
+	floor[xstop][ystop] += 1
+      }
+   }
+   
+   @ countTwoOverlaps() {
+      count = 0
+      . ( maxSize ... x ) {
+         . ( maxSize ... y ) {
+            ? [ floor[x][y] >= 2 ] {
+               count += 1
+            }
+         }
+      }
+      -> count
+   }
+
+   @ printFloor() {
+      . ( maxSize ... y ) {
+         . ( maxSize ... x ) {
+            ? [ floor[x][y] == 0 ] {
+               printf(".")
+            } ~ {
+               printf(floor[x][y])
+            }
+         }
+         printf("\n")
+      }
+   }
+}
+
+of_one = oceanFloor()
+of_two = oceanFloor()
+
+lines = getLines('inputs/5.txt')
+
+. ( lines ... line ) {
+   s = line.split(" ")
+   fromraw = s[0]
+   toraw = s[2]
+
+   from = [ ( fromraw.split(",") ... i ) { parseInt(i) } ]
+   to = [ ( toraw.split(",") ... i ) { parseInt(i) } ]
+
+   of_one::addLinePartOne(from[0],from[1],to[0],to[1])
+   of_two::addLinePartTwo(from[0],from[1],to[0],to[1])
+}
+
+print("Part 1: " + of_one::countTwoOverlaps())
+print("Part 2: " + of_two::countTwoOverlaps())
+
