@@ -1,0 +1,55 @@
+load("general.ric")
+
+fishesInput = [ ( getLines("inputs/6.txt") ... l ) { . ( l.split(",") ... f ) { parseInt(f) } } ]
+fishesInitial = fishesInput[0]
+
+;; fishes ;; {
+   state = [ ( 9 ... i ) { bigInt(0) } ]
+
+   @ setInitialState(days) {
+      . ( days ... day ) {
+         state[day] += 1
+      }
+   }
+
+   @ getCount() {
+      -> sum(state)
+   }
+
+   @ newDay() {
+      num = state.popFirst()
+      state[6] += num
+      state.append(num)
+   }
+
+   @ printFishes() {
+      w = ""
+      . ( state ... s ) {
+         w += s + ","
+      }
+      w = w[:-1]
+      print(w + " (" + getCount() + ")")
+   }
+}
+
+
+ff = fishes()
+ff::setInitialState(fishesInitial)
+
+days = 80
+. ( days ... d ) {
+   ff::newDay()
+}
+print("Part 1: " + ff::getCount())
+
+fff = fishes()
+fff::setInitialState(fishesInitial)
+
+days = 256
+. ( days ... d ) {
+   fff::newDay()
+}
+print("Part 2: " + fff::getCount())
+
+
+
