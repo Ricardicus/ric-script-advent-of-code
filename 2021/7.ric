@@ -1,0 +1,77 @@
+load("general.ric")
+
+line = getLines("inputs/7.txt")[0]
+positions = [ (line.split(",") ... i) { parseInt(i) } ]
+
+max = 0
+. ( len(positions) ... pi ) {
+   p = positions[pi]
+   ? [ p > max ] {
+      max = p
+      maxIdx = pi 
+   }
+}
+
+@ computeFuelCostPart1(pos, positions) {
+   diff = 0
+   . ( positions ... p ) {
+      diff += parseInt(abs(p-pos))
+   }
+   -> diff
+}
+
+sum = [((max+1) ... i) { 0 }]
+@ sumUpTo(pos) {
+   ? [ sum[pos] != 0 || pos == 0] {
+      -> sum[pos]
+   }
+   sum[pos] = pos + sum[pos-1]
+}
+
+@ initialSums(pos) {
+   . ( pos ... i ) {
+      sumUpTo(i)
+   }
+}
+
+@ computeFuelCostPart2(pos, positions) {
+   diff = 0
+   . ( positions ... p ) {
+      diff += sumUpTo(parseInt(abs(pos-p)))
+   }
+   -> diff
+}
+
+
+
+# Explore all moves 
+checks = []
+lowestCostIndex = 0
+. ( max ... i ) {
+   fuelCost = computeFuelCostPart1(i, positions)
+   checks.append([fuelCost, i])
+
+   ? [ fuelCost < checks[lowestCostIndex][0] ] {
+      lowestCostIndex = i
+   }
+}
+
+print("Part 1: " + checks[lowestCostIndex][0])
+
+# Explore all moves again 
+initialSums(max+1)
+
+checks = []
+lowestCostIndex = 0
+. ( max ... i ) {
+   fuelCost = computeFuelCostPart2(i, positions)
+   checks.append([fuelCost, i])
+
+   ? [ fuelCost < checks[lowestCostIndex][0] ] {
+      lowestCostIndex = i
+   }
+}
+
+print("Part 2: " + checks[lowestCostIndex][0])
+
+
