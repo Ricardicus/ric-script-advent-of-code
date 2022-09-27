@@ -6,7 +6,7 @@ rhs = []
 . ( line ... l ) {
    rhs.append( trim(l.split("|")[1]) )
 }
-bgdfc bcfga bfgdc c
+
 lens = [ ( 10 ... i ) { 0 } ]
 
 . ( rhs ... signs ) {
