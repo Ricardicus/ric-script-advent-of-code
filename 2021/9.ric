@@ -1,0 +1,78 @@
+load("general.ric")
+
+lines = getLines("inputs/9.txt")
+
+mapX = len(lines[0]) + 2
+mapY = len(lines) + 2
+
+# Loading the map, with padding
+map = [(mapY ... y) { [(mapX ... x) { 9 } ]  }]
+
+y = 1
+. ( lines ... l ) {
+   x = 1
+   . ( l ... number ) {
+      n = parseInt(number)
+      map[y][x] = n
+      x += 1
+   }
+   y += 1
+}
+
+riskLevel = 0
+
+y = 1
+. [ y < len(map) - 1 ] {
+   x = 1
+   . [ x < len(map[0]) - 1 ] {
+      s = map[y][x]
+      ? [ s < map[y-1][x] && s < map[y+1][x] && 
+          s < map[y][x-1] && s < map[y][x+1] ] {
+         riskLevel += s + 1
+      }
+      x += 1 @
+   }
+   y += 1 @
+}
+
+print("Part 1: " + riskLevel)
+
+# Loading a check map, with padding
+checks = [(mapY ... y) { [(mapX ... x) { 0 } ]  }]
+
+@ getBasinPoint(x, y) {
+   ? [ map[y][x] == 9 || checks[y][x] == 1 ] {
+      -> 0
+   }
+   checks[y][x] = 1
+   -> 1 + getBasinPoint(x, y+1) + getBasinPoint(x, y-1) + getBasinPoint(x-1, y) + getBasinPoint(x+1, y)
+}
+
+@ getBasinSize(x, y) {
+   ? [ checks[y][x] == 1 ] {
+      -> 0
+   }
+   -> getBasinPoint(x, y)
+}
+
+basins = []
+max = 0
+y = 1
+yR = ""
+. [ y < len(map) - 1 ] {
+   x = 1
+   . [ x < len(map[0]) - 1 ] {
+      s = map[y][x]
+      yR += s
+      basinSize = getBasinSize(x, y)
+      ? [ basinSize > 0 ] {
+         basins.append(basinSize)
+      }
+      x += 1 @
+   }
+   yR += "\n"
+   y += 1 @
+}
+
+basins = basins.sort()[::-1]
+print("Part 2: " + (basins[0] * basins[1] * basins[2]))
