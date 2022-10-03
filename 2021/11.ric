@@ -1,0 +1,147 @@
+load("general.ric")
+
+lines = getLines("inputs/11.txt")
+
+mapX = len(lines[0]) + 2
+mapY = len(lines) + 2
+
+# Loading the map, with padding
+map = [(mapY ... y) { [(mapX ... x) { -1 } ]  }]
+y = 1
+. ( lines ... l ) {
+   x = 1
+   . ( l ... number ) {
+      n = parseInt(number)
+      map[y][x] = n
+      x += 1
+   }
+   y += 1
+}
+
+flashCount = 0
+
+@ increasePoint(x, y) {
+   ? [ map[y][x] <= 0 ] {
+      -> 0
+   }
+   map[y][x] += 1
+}
+
+@ flash(x,y) {
+
+   ? [ map[y][x] < 0 ] {
+      -> 0
+   }
+
+   map[y][x] = 0
+   flashCount += 1
+   
+   increasePoint(x+1,y)
+   increasePoint(x+1,y+1)
+   increasePoint(x,y+1)
+   increasePoint(x-1,y)
+   increasePoint(x-1,y-1)
+   increasePoint(x,y-1)
+   increasePoint(x-1,y+1)
+   increasePoint(x+1,y-1)
+
+}
+
+@ getFlashPoints() {
+   flashPoints = []
+   . [ y < len(map) - 1 ] {
+      x = 1
+      . [ x < len(map[0]) - 1 ] {
+         ? [ map[y][x] > 9 ] {
+            flashPoints.append([x, y])
+         }
+         x += 1 @
+      }
+      y += 1 @
+   }
+   -> flashPoints
+}
+
+@ printMap() {
+   y = 1
+   yR = ""
+   . [ y < len(map) - 1 ] {
+      x = 1
+      . [ x < len(map[0]) - 1 ] {
+         yR += map[y][x]
+         x += 1 @
+      }
+      yR += "\n"
+      y += 1 @
+   }
+   print(yR)
+}
+
+# stepCount, used in part 2
+stepCount = 0
+@ step() {
+   stepCount += 1
+
+   y = 1
+   . [ y < len(map) - 1 ] {
+      x = 1
+      . [ x < len(map[0]) - 1 ] {
+         map[y][x] += 1
+         x += 1 @
+      }
+      y += 1 @
+   }
+   y = 1
+
+   flashPoints = getFlashPoints()
+   ? [ flashPoints.len() > 0 ] {
+      point = flashPoints.pop()
+      flash(point[0], point[1])
+      ? [ flashPoints.len() == 0 ] {
+         flashPoints = getFlashPoints()
+      }
+      @
+   }
+
+   zerosCount = 0
+   y = 1
+   . [ y < len(map) - 1 ] {
+      x = 1
+      . [ x < len(map[0]) - 1 ] {
+         ? [ map[y][x] == 0 ] {
+            zerosCount += 1
+         }
+         x += 1 @
+      }
+      y += 1 @
+   }
+   # Part 2, check if all flashed
+   ? [ zerosCount == 100 ] {
+      print("Part two, all flash at: " + stepCount)
+      exit(0)
+   }
+}
+
+printMap()
+#step()
+#print("Step 1")
+#printMap()
+#step()
+#print("Step 2")
+#printMap()
+
+. ( 100 ... i ) {
+   step()
+}
+
+printMap()
+print("Part 1: " + flashCount)
+
+# Part 2, continue until all flash
+. [ 1 ] {
+   step()
+   #printMap()
+   @
+}
+
+
