@@ -1,0 +1,74 @@
+load("general.ric")
+
+lines = getLines("inputs/12.txt")
+
+connections = {}
+pathList = []
+
+@ isSmall(cave) {
+   ? [ charCode(cave) >= 97 && charCode(cave) <= 122 ] {
+      -> 1
+   }
+   -> 0
+}
+
+@ getPathId(path) {
+   -> path.join("-")
+}
+
+@ readData() {
+. ( lines ... l ) {
+   places = l.split("-")
+   i = 1
+   . [ i < places.len() ] {
+      ? [ connections.contains(places[i-1]) ] {
+         append(connections[places[i-1]], places[i])
+      } ~{
+         connections[places[i-1]] = [places[i]]
+      }
+      ? [ connections.contains(places[i]) ] {
+         append(connections[places[i]], places[i-1])
+      } ~{
+         connections[places[i]] = [places[i-1]]
+      }
+      i += 1@
+   }
+}
+}
+
+readData()
+
+@ countPaths(seen, cave, part) {
+  doPart = part
+  ? [ cave == "end" ] { -> 1 }
+  ? [ seen.contains(cave) ] {
+    ? [ cave == "start" ] { -> 0 }
+    ? [ cave.isSmall() ] {
+      ? [ doPart == 1] {
+        -> 0
+      } ~ {
+        doPart = 1
+      }
+    }
+  }
+  newSeen = seen
+  newSeen.append(cave)
+  s = 0
+  . ( connections[cave] ... c) {
+    s += countPaths(newSeen, c, doPart)
+  }
+  -> s
+}
+
+@ doPart1() {
+  paths = countPaths([], "start", 1)
+  print("Part 1: " + paths)
+}
+
+@ doPart2() {
+  paths = countPaths([], "start", 2)
+  print("Part 2: " + paths)
+}
+
+doPart1()
+doPart2()
