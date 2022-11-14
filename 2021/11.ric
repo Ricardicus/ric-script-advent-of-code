@@ -117,12 +117,12 @@ stepCount = 0
    }
    # Part 2, check if all flashed
    ? [ zerosCount == 100 ] {
-      print("Part two, all flash at: " + stepCount)
+      print("Part 2: " + stepCount)
       exit(0)
    }
 }
 
-printMap()
+#printMap()
 #step()
 #print("Step 1")
 #printMap()
@@ -134,7 +134,7 @@ printMap()
    step()
 }
 
-printMap()
+#printMap()
 print("Part 1: " + flashCount)
 
 # Part 2, continue until all flash

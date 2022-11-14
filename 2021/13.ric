@@ -77,7 +77,7 @@ latestYFold = 0
       }
       result += "\n"
    }
-   print(result) 
+   printf(result) 
 }
 
 @ computeFold(fold) {

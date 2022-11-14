@@ -1,0 +1,23 @@
+name: Building and testing
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test-linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+    - id: install-python-deps
+      run: pip3 install -r requirements.txt
+    - id: build-ric-script
+      run: make
+    - id: running-pytest
+      run: cd tests; pytest
+

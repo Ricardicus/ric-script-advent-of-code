@@ -1,0 +1,3 @@
+[submodule "ric-script"]
+	path = ric-script
+	url = git@github.com:Ricardicus/ric-script.git

@@ -89,5 +89,5 @@ print("Part 1: " + gamma_rate * epsilon_rate)
   }
   -> intBase(range[0], 2)
 }
-print("Part 3: " + getOxygenRating() * getCOTwoRating())
+print("Part 2: " + getOxygenRating() * getCOTwoRating())
 
