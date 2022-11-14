@@ -1,0 +1,140 @@
+load("general.ric")
+
+lines = getLines("inputs/13.txt")
+
+latestXFold = 0
+latestYFold = 0
+
+@ getLargestTilePos() {
+   xMax = 0
+   yMax = 0
+   . ( lines ... l ) {
+      a = l.split(",")
+      ? [ a.len() > 1 ] {
+         x = parseInt(a[0])
+         y = parseInt(a[1])
+         ? [ x > xMax ] {
+            xMax = x
+         }
+         ? [ y > yMax ] {
+            yMax = y
+         }
+      }
+   }
+   -> [xMax, yMax]
+}
+
+@ getFoldInstructions() {
+   folds = []
+   . ( lines ... l ) {
+      a = l.split(" ")
+      ? [ a.len() > 2 ] {
+         ins = a[2]
+         p = ins.split("=")
+         i = p[0]
+         v = parseInt(p[1])
+         ? [ i == "x" ] {
+            folds.append([0, v])
+         } ~ {
+            folds.append([1, v])
+         }
+      }
+   }
+   -> folds 
+}
+
+@ constructGrid(maxX, maxY) {
+   result = []
+   . ( maxY + 1 ... x ) {
+      result.append([])
+      . ( maxX + 1 ... y ) {
+         append(result[x], 0)
+      }
+   }
+   -> result
+}
+
+@ populateGrid() {
+   . ( lines ... l ) {
+      a = l.split(",")
+      ? [ a.len() > 1 ] {
+         x = parseInt(a[0])
+         y = parseInt(a[1])
+         grid[y][x] = 1
+      }
+   }
+}
+
+@ printGrid() {
+   result = ""
+   . ( latestYFold ... y ) {
+      . ( latestXFold ... x ) {
+         ? [ grid[y][x] > 0 ] {
+            result += "x"
+         } ~ {
+            result += "."
+         }
+      }
+      result += "\n"
+   }
+   print(result) 
+}
+
+@ computeFold(fold) {
+   axis = fold[0]
+   v = fold[1]
+
+   ? [ axis == 1 ] {
+      . ( grid.len() ... y ) {
+         . ( len(grid[0]) ... x ) {
+            ? [ y > v && grid[y][x] > 0 ] {
+               grid[2*v-y][x] = grid[y][x]
+               grid[y][x] = 0
+            }
+         }
+      }
+      latestYFold = v
+   } ~ [ axis == 0 ] {
+      . ( grid.len() ... y ) {
+         . ( len(grid[0]) ... x ) {
+            ? [ x > v && grid[y][x] > 0 ] {
+               grid[y][2*v-x] = grid[y][x]
+               grid[y][x] = 0
+            }
+         }
+      }
+      latestXFold = v
+   }
+}
+
+@ computeDots() {
+   res = 0
+   . ( grid.len() ... y ) {
+      . ( len(grid[0]) ... x ) {
+         ? [ grid[y][x] > 0 ] {
+            res += 1
+         }
+      }
+   }
+   -> res
+}
+
+# Part 1
+maxPositions = getLargestTilePos()
+grid = constructGrid(maxPositions[0], maxPositions[1])
+populateGrid()
+
+folds = getFoldInstructions()
+
+i = 0
+. [ i < folds.len() ] {
+   computeFold(folds[i])
+   ? [ i == 0 ] {
+      print("Part 1: " + computeDots())
+   }
+   i += 1@
+}
+
+print("Part 2: ")
+printGrid()
+
