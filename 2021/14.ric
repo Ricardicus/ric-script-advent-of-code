@@ -1,0 +1,98 @@
+load("general.ric")
+
+lines = getLines("inputs/14.txt")
+
+startText = list(lines[0])
+rulesText = lines[2:]
+
+rules = {}
+
+. ( rulesText ... r ) {
+   r = r.split(" -> ")
+   ? [ r.len() > 0 ] {
+      m = list(r[0])
+      p = r[1]
+      rules[m.join("")] = p 
+   }
+}
+
+@ expand(iterations) {
+   pairCount = {}
+   i = 0
+   firstPair = ""
+   lastPair = ""
+   . [ i < startText.len() - 1 ] {
+      pair = startText[i] + startText[i+1]
+      ? [ pairCount.contains(pair) ] {
+         pairCount[pair] += bigInt(1)
+      } ~ {
+         pairCount[pair] = bigInt(1)
+      }
+      ? [ i == 0 ] { firstPair = pair }
+      lastPair = pair
+      i += 1@
+   
+   }
+
+   i = 0
+   . [ i < iterations ] {
+      pairCountNew = {} 
+      . ( pairCount ... key ) {
+         produce = rules[key]
+         newPair1 = key[0] + produce
+         newPair2 = produce + key[1]
+         keyCount = pairCount[key]
+         ? [ pairCountNew.contains(newPair1) ] {
+            pairCountNew[newPair1] += keyCount
+         } ~ {
+            pairCountNew[newPair1] = keyCount
+         }
+         ? [ pairCountNew.contains(newPair2) ] {
+            pairCountNew[newPair2] += keyCount
+         } ~ {
+            pairCountNew[newPair2] = keyCount
+         }
+      }
+
+      pairCount = pairCountNew
+      i += 1@
+   }
+
+   charOccurences = {}
+   . ( pairCount ... pair ) {
+      char1 = pair[0]
+      char2 = pair[1]
+      ? [ charOccurences.contains(char1) ] {
+         charOccurences[char1] += pairCount[pair]
+      } ~ {
+         charOccurences[char1] = pairCount[pair]
+      }
+      ? [ charOccurences.contains(char2) ] {
+         charOccurences[char2] += pairCount[pair]
+      } ~ {
+         charOccurences[char2] = pairCount[pair]
+      }
+   }
+
+   charOccurences[firstPair[0]] += bigInt(1)
+   charOccurences[lastPair[1]] += bigInt(1)
+
+   max = bigInt(0)
+   low = charOccurences[lastPair[1]] 
+
+   . ( charOccurences ... key ) {
+      charOccurences[key] /= 2
+      val = charOccurences[key]
+      ? [ val > max ] {
+         max = val
+      }
+      ? [ val < low ] {
+         low = val
+      }
+   }
+
+   -> (max-low)
+}
+
+print("Part 1: " + expand(10))
+print("Part 2: " + expand(40))
