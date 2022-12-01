@@ -1,0 +1,19 @@
+load("general.ric")
+
+lines = getLines("inputs/1.txt")
+
+print(lines)
+counts = [0]
+counts_i = 0
+. ( lines ... line ) {
+  ? [ line.len() == 0 ] {
+    counts_i += 1
+    counts += [0]
+  } ~ {
+    counts[counts_i] += parseInt(line)
+  }
+}
+
+counts = counts.sort()
+print("Part 1: " + counts[-1])
+print("Part 2: " + (counts[-3]+counts[-2]+counts[-1]))
