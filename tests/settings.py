@@ -3,8 +3,6 @@ import os
 EXECUTABLE = "../ric-script/ric"
 
 def callSample(sample):
-  os.chdir("../2021")
-
   if (os.name == 'nt'):
     # Windows
     binaryPath = os.path.join('..', 'ric-script', 'ric.exe')
@@ -15,8 +13,6 @@ def callSample(sample):
     return "./{0} {1} ".format(EXECUTABLE, sample)
 
 def callSampleArgs(sample, args):
-  os.chdir("../2021")
-
   if (os.name == 'nt'):
     # Windows
     binaryPath = os.path.join('..', 'ric-script', 'ric.exe')
