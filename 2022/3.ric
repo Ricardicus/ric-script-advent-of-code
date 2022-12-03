@@ -1,0 +1,65 @@
+load("general.ric")
+
+lines = getLines("inputs/3.txt")
+
+@ prioPoints(a) {
+  cc = a.charCode()
+  ? [ cc >= charCode("a") && cc <= charCode("z") ] {
+	-> 1 + cc - charCode("a")
+  } ~ {
+	-> 27 + cc - charCode("A")
+  }
+}
+
+count = 0
+. ( lines ... line ) {
+  l = line.len() / 2
+  p1 = line[:l]
+  p2 = line[l:]
+  i = 0
+  . [ i < p1.len() ] {
+    c = p1[i]
+    ? [ p2.contains(c) ] {
+      count += prioPoints(c)
+    } ~{
+      i += 1@
+    }
+  }
+}
+
+print("Part 1: " + count)
+
+@ amongAll(l1, l2, l3) {
+  check = l1 + l2 + l3
+  counts = {}
+  inspect = []
+  . ( check ... c ) {
+    ? [ counts.contains(c) ] {
+      counts[c] += 1
+    } ~ {
+      counts[c] = 1
+    }
+  }
+  . ( counts ... key ) {
+    ? [ counts[key] >= 3 ] {
+      inspect += key
+    }
+  }
+  . ( inspect ... i ) {
+  	? [ l1.contains(i) && l2.contains(i) && l3.contains(i) ] {
+			-> i
+		}
+  }
+	print("No shared character found")
+	exit(1)
+}
+
+count = 0
+i = 0
+. [ i < lines.len() ]  {
+	count += prioPoints(amongAll(lines[i], lines[i+1], lines[i+2]))
+	i += 3@
+}
+
+print("Part 2: " + count)
+
