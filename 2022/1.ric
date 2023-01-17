@@ -13,4 +13,4 @@ counts = [0]
 
 counts = counts.sort()
 print("Part 1: " + counts[-1])
-print("Part 2: " + (counts[-3]+counts[-2]+counts[-1]))
+print("Part 2: " + sum(counts[-3:]))
