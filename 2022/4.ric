@@ -1,0 +1,33 @@
+load("general.ric")
+
+lines = getLines("inputs/4.txt")
+
+count = 0
+count2 = 0
+
+. ( lines ... line ) {
+  line = trim(line)
+  pair = line.split(",")
+  p1 = [ ( split(pair[0],"-") ... x ) { parseInt(x) } ]
+  p2 = [ ( split(pair[1],"-") ... x ) { parseInt(x) } ]
+
+  ? [ p2[0] <= p1[0] && p2[1] >= p1[1] ] {
+    count += 1
+  } ~[ p1[0] <= p2[0] && p1[1] >= p2[1] ] {
+    count += 1
+  }
+
+  ? [ p1[0] >= p2[0] && p1[0] <= p2[0] ] {
+    count2 += 1
+  } ~[ p2[0] >= p1[0] && p2[0] <= p1[0] ] {
+    count2 += 1
+  } ~[ p1[1] >= p2[0] && p1[1] <= p2[1] ] {
+    count2 += 1
+  } ~[ p2[1] >= p1[0] && p2[1] <= p1[1] ] {
+    count2 += 1
+  }
+}
+
+print("Part 1: " + count)
+print("Part 2: " + count2)
+
