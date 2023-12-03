@@ -1,0 +1,13 @@
+load("general.ric")
+
+lines = getLines("inputs/1.txt")
+
+sum = 0
+
+. ( lines ... line ) {
+  digits = [ (line ... c) { ? [ c.isnumeric() ] { c } } ]
+  digit = digits[0] + digits[-1]
+  sum += digit.parseInt()
+}
+
+print("Part 1: " + sum)
