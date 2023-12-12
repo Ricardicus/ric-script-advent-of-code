@@ -86,13 +86,13 @@ idx = 0
   groups = join([groups] * 5, ",")
 
   folded_line = rules + " " + groups
-  print(folded_line)
+  #print(folded_line)
   # Uncomment for inefficient caching
   # I might work on this ...
   #a = getNbrArrangements(folded_line)
 
-  idx += 1
-  sumPartTwo += a
+  #idx += 1
+  #sumPartTwo += a
 }
 
 # print("Part 2: " + sumPartTwo)
