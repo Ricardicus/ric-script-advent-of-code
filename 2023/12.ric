@@ -1,0 +1,106 @@
+load("general.ric")
+
+lines = getLines("inputs/12.txt")
+
+
+@ extractGroups(record) {
+  last = "."
+  groups = []
+  groupSum = 0
+
+  . ( record ... r ) {
+    ? [ r == "." ] {
+      ? [ last == "o" ] {
+        append(groups, groupSum)
+      }
+      groupSum = 0
+    }
+    ? [ r == "o" ] {
+      groupSum += 1
+    }
+    last = r
+  }
+  ? [ last == "o" ] {
+    groups.append(groupSum)
+  }
+  -> groups
+}
+
+# I don't know why I need this, and it is sad that I do
+@ controlCheck(path, groups) {
+  groupsCheck = extractGroups(path)
+  ? [ len(groupsCheck) == len(groups) ] {
+    idx = 0
+    match = 1
+    . [ idx < len(groups) ] {
+      ? [ groups[idx] != groupsCheck[idx] ] {
+        match = 0
+      } ~{
+      idx += 1
+      @
+      }
+    }
+    -> match
+  }
+  -> 0
+}
+
+
+@ arrangements(index, g_index, acc, groups, records, path) {
+  ret = 0
+  ? [ index == len(records) ] {
+    ? [ g_index == len(groups) - 1 ] {
+      ? [ acc > 0 && groups[g_index] == acc ] {
+      -> controlCheck(path, groups)
+      } ~ [ acc == 0 && records[index - 1] == "." ] {
+        -> controlCheck(path, groups)
+      }
+    } ~ [ g_index == len(groups) && path[-1] == "." && acc == 0 ] {
+      -> controlCheck(path, groups)
+    } ~ {
+      -> 0
+    }
+  } ~ {
+    char = records[index]
+    #print("path: " + path + ", " + char + ", acc: " + acc)
+    ? [ char == "." ] {
+      ? [ acc > 0 && g_index < len(groups) ] {
+        ? [ groups[g_index] == acc ] {
+          -> arrangements(index + 1, g_index + 1, 0, groups, records, path + char)
+        }
+      } ~[ acc == 0 ] {
+        -> arrangements(index + 1, g_index, 0, groups, records, path + char)
+      }
+    } ~[ char == "o" ] {
+      -> arrangements(index + 1, g_index, acc + 1, groups, records, path + char)
+    } ~[ char == "?" ] {
+      # if it was a dot
+      ? [ acc > 0 && g_index < len(groups) ] {
+        ? [ groups[g_index] == acc ] {
+          ret += arrangements(index + 1, g_index + 1, 0, groups, records, path + ".")
+        }
+      } ~ [ acc == 0 ] {
+        ret += arrangements(index + 1, g_index, 0, groups, records, path + ".")
+      }
+      # if it was an 'o' (:%s/#/o/g ....)
+      ret += arrangements(index + 1, g_index, acc + 1, groups, records, path + "o")
+    }
+  }
+
+  -> ret
+}
+
+@ getNbrArrangements(line) {
+  groups = line.split(" ")[1]
+  groups = [ ( groups.split(",") ... g ) { g.parseInt() } ]
+  records = line.split(" ")[0]
+  arr = arrangements(0, 0, 0, groups, records, "")
+  -> arr
+}
+
+sumPartOne = 0
+. ( lines ... line ) {
+  sumPartOne += getNbrArrangements(line)
+}
+
+print("Part 1: " + sumPartOne)
