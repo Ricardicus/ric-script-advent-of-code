@@ -26,37 +26,17 @@ lines = getLines("inputs/12.txt")
   -> groups
 }
 
-# I don't know why I need this, and it is sad that I do
-@ controlCheck(path, groups) {
-  groupsCheck = extractGroups(path)
-  ? [ len(groupsCheck) == len(groups) ] {
-    idx = 0
-    match = 1
-    . [ idx < len(groups) ] {
-      ? [ groups[idx] != groupsCheck[idx] ] {
-        match = 0
-      } ~{
-      idx += 1
-      @
-      }
-    }
-    -> match
-  }
-  -> 0
-}
-
-
 @ arrangements(index, g_index, acc, groups, records, path) {
   ret = 0
   ? [ index == len(records) ] {
     ? [ g_index == len(groups) - 1 ] {
       ? [ acc > 0 && groups[g_index] == acc ] {
-      -> controlCheck(path, groups)
-      } ~ [ acc == 0 && records[index - 1] == "." ] {
-        -> controlCheck(path, groups)
+      -> 1
+      } ~ [ acc == 0 && records[index - 1] == "o" ] {
+        -> 1
       }
     } ~ [ g_index == len(groups) && path[-1] == "." && acc == 0 ] {
-      -> controlCheck(path, groups)
+      -> 1
     } ~ {
       -> 0
     }
