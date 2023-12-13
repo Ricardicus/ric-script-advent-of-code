@@ -76,7 +76,13 @@ sumPartTwo = 0
 
 # I am pretty sure this would do it, but unfortunately
 # my intepreter breaks because of memory constraints
-# and inefficiencies with the caching.. 
+# and inefficiencies with the caching..
+# 
+# The algorithm implemented in Python3 works:
+# https://github.com/Ricardicus/aoc22-py/blob/master/2023/12.py
+# It gave me the right answer. So this is just ric-script
+# not being really up to the task. I will have to think
+# about how to improve my language in this regard.
 idx = 0
 . ( lines ... line ) {
   rules = line.split(" ")[0]
