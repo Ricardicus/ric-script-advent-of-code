@@ -11,3 +11,40 @@ sum = 0
 }
 
 print("Part 1: " + sum)
+
+# Part 2
+
+sum = 0
+
+values = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+          "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+
+. ( lines ... line ) {
+  line = line.trim()
+  digits = []
+  i = 0
+  . [ i < line.len() ] {
+    l = line[i:]
+    ? [ isnumeric(l[0]) ] {
+      digits.append(parseInt(l[0]))
+      i += 1
+      @
+    }
+    foundString = ""
+    . ( values ... value ) {
+      ? [ l.startsWith(value) ] {
+        foundString = value
+        digits.append(values[value])
+      }
+    }
+    ? [ foundString.len() ] {
+      i += foundString.len()
+      @
+    }
+    i += 1
+    @
+  }
+  sum += digits[0]*10 + digits[-1]
+}
+
+print("Part 2: " + sum)
