@@ -2,20 +2,38 @@ load("general.ric")
 
 lines = getLines("inputs/12.txt")
 
+# Cachepot, a simple dictionary type that only stores references.
+# I implemented this data type because I saw a need for faster
+# dictionaries when I solved part 2 of this problem.
+# Part 1 worked already without any optimizations that required
+# a dictionary. 
+# Cachepots are today very new, and only supports basic operations
+# such as printing, contain and indexing. They also are only
+# safe to use in the global context.
+# In the future, all dictionaries may be implemented
+# in the same way as these 'cachepots'.
+# That will require extra work to ensure safety.
+# It is a more 'under-the-hood' kind of datatype at this point,
+# will need to document it after I have worked some more on it.
+arrangementsCache = cachepot()
 @ arrangements(index, g_index, acc, groups, records, path) {
   ret = 0
-
+  key = "" + index + "," + records + "," + g_index + "," + acc 
+  . ( groups ... g ) { key += g + "," }
+  ? [ arrangementsCache.contains(key) ] {
+    -> arrangementsCache[key]
+  }
   ? [ index == len(records) ] {
     ? [ g_index == len(groups) - 1 ] {
       ? [ acc > 0 && groups[g_index] == acc ] {
-      -> 1
+      -> bigInt(1)
       } ~ [ acc == 0 && records[index - 1] == "o" ] {
-        -> 1
+        -> bigInt(1)
       }
     } ~ [ g_index == len(groups) && path[-1] == "." && acc == 0 ] {
-      -> 1
+      -> bigInt(1)
     } ~ {
-      -> 0
+      -> bigInt(0)
     }
   } ~ {
     char = records[index]
@@ -42,19 +60,8 @@ lines = getLines("inputs/12.txt")
       ret += arrangements(index + 1, g_index, acc + 1, groups, records, path + "o")
     }
   }
-
-  -> ret
-}
-
-arrangementsCache = {}
-@ arrangementsCached(index, g_index, acc, groups, records, path) {
-  key = "" + index + "," + records + "," + g_index + "," + acc 
-  . ( groups ... g ) { key += g + "," }
-  ? [ arrangementsCache.contains(key) ] {
-    -> arrangementsCache[key]
-  }
-  ret = arrangements(index, g_index, acc, groups, records, path)
   arrangementsCache[key] = ret
+  -> ret
 }
 
 @ getNbrArrangements(line) {
@@ -72,18 +79,8 @@ sumPartOne = 0
 
 print("Part 1: " + sumPartOne)
 
-sumPartTwo = 0
-
-# I am pretty sure this would do it, but unfortunately
-# my intepreter breaks because of memory constraints
-# and inefficiencies with the caching..
-# 
-# I implemented the algorithm in Python3 and learned that it works:
-# https://github.com/Ricardicus/aoc22-py/blob/master/2023/12.py
-# It gave me the right answer. So this is just ric-script
-# not being really up to the task. I will have to think
-# about how to improve my language in this regard.
 idx = 0
+sumPartTwo = bigInt(0)
 . ( lines ... line ) {
   rules = line.split(" ")[0]
   groups = line.split(" ")[1]
@@ -92,13 +89,10 @@ idx = 0
   groups = join([groups] * 5, ",")
 
   folded_line = rules + " " + groups
-  #print(folded_line)
-  # Uncomment for inefficient caching
-  # I might work on this ...
-  #a = getNbrArrangements(folded_line)
-
-  #idx += 1
-  #sumPartTwo += a
+  a = getNbrArrangements(folded_line)
+  idx += 1
+  printf("\rworking on " + idx + " of " + len(lines) + "...")
+  sumPartTwo += a
 }
 
-# print("Part 2: " + sumPartTwo)
+print("Part 2: " + sumPartTwo)
