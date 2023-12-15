@@ -1,0 +1,114 @@
+load("general.ric")
+
+lines = getLines("inputs/15.txt")
+
+rules = split(trim(lines[0]), ",")
+
+;; hasher ;; {
+  current = 0
+  @ gethash() { -> current }
+  @ addChar(c) {
+    a = c.charCode()
+    current += a
+    current *= 17
+    current = current % 256
+  }
+}
+
+@ hej() {
+	-> 0
+}
+
+# Part 1
+sum = bigInt(0)
+. ( rules ... rule ) {
+  hash = hasher()
+  . ( rule ... r ) {
+    hash::addChar(r)
+  }
+  sum += hash::gethash()
+}
+
+print("Part 1: " + sum)
+
+# Part 2
+
+@ printBoxes() {
+  i = 0
+  . [ i < 256 ] {
+    slot = boxes[i]
+    ? [ len(slot) > 0 ] {
+      printf("Box " + (i+1) + ": ")
+      print(boxes[i])
+    }
+    i += 1
+    @
+  }
+}
+
+@ calcBoxes() {
+  i = 0
+  s = bigInt(0)
+  . [ i < 256 ] {
+    q = 0
+    slot = boxes[i]
+    . [ q < len(slot) ] {
+      focal = parseInt(split(slot[q], "=")[1])
+      s += (i+1) * (q+1) * focal
+      q += 1
+      @
+    }
+    i += 1
+    @
+  }
+  -> s
+}
+
+boxes = [[]] * 256
+sum = bigInt(0)
+. ( rules ... rule ) {
+  hash = hasher()
+  ? [ rule.contains("=") ] {
+    label = split(rule, "=")[0]
+    . ( label ... l ) {
+      hash::addChar(l)
+    }
+    idx = hash::gethash()
+    value = split(rule, "=")[1]
+    ? [ len(boxes[idx]) == 0 ] {
+      append(boxes[idx], rule)
+    } ~ {
+      new = []
+      overwrite = 0
+      . ( boxes[idx] ... b ) {
+        label_check = split(b, "=")[0]
+        ? [ label != label_check ] {
+          append(new, b)
+        } ~ {
+          overwrite = 1
+          append(new, rule)
+        }
+      }
+      ? [ overwrite == 0 ] {
+        append(new, rule)
+      }
+      boxes[idx] = new
+    }
+  } ~{
+    label = split(rule, "-")[0]
+    . ( label ... l ) {
+      hash::addChar(l)
+    }
+    idx = hash::gethash()
+    new = []
+    . ( boxes[idx] ... b ) {
+      label_check = split(b, "=")[0]
+      ? [ label != label_check ] {
+        append(new, b)
+      }
+    }
+    boxes[idx] = new
+  }
+}
+
+print("Part 2: " + calcBoxes())
