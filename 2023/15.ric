@@ -15,10 +15,6 @@ rules = split(trim(lines[0]), ",")
   }
 }
 
-@ hej() {
-	-> 0
-}
-
 # Part 1
 sum = bigInt(0)
 . ( rules ... rule ) {
