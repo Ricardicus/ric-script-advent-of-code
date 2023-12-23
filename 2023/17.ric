@@ -1,6 +1,10 @@
 load("general.ric")
 
-lines = getLines("inputs/17.txt")
+# The larger dataset requiers the -ah argument for increased 
+# heap allocation size. I really should fix so that ric-script
+# allocates the heap dynamically when needed..
+
+lines = getLines("inputs/17.small.txt")
 
 map = [[]] * lines.len()
 
@@ -58,7 +62,7 @@ final_key = "" + (len(map) - 1) + "," + (len(map[0]) - 1)
 
 best_path = ""
 
-to_visit = prioQueue()
+to_visit = minHeap()
 
 maxI = 0
 
@@ -70,16 +74,15 @@ maxI = 0
   # first 
   current = [0,0]
 
-  topPrio = 999999
   # start iterations, position, direction, loss, consecutive moves, debugging stuff the rest
-  to_visit.prioInsert([current, 0, 0, 0], topPrio)
-  to_visit.prioInsert([current, 1, 0, 0], topPrio)
-  to_visit.prioInsert([current, 2, 0, 0], topPrio)
+  to_visit.heapInsert([current, 0, 0, 0], 0)
+  to_visit.heapInsert([current, 1, 0, 0], 0)
+  to_visit.heapInsert([current, 2, 0, 0], 0)
   # best heat loss
   min_heat_loss = 999999
 
   @ getNextToVisit() {
-    -> to_visit.prioPop()
+    -> to_visit.heapPop()
   }
 
   . [ to_visit.len() > 0 ] {
@@ -143,7 +146,7 @@ maxI = 0
       
       loss_key = "" + current[0] + "," + current[1] + "," + dir_str
       loss = losses[loss_key]
-      to_visit.prioInsert([[i_check, j_check], rel_idx, loss+acc, new_consecutive], topPrio-(loss+acc))
+      to_visit.heapInsert([[i_check, j_check], rel_idx, loss+acc, new_consecutive], loss+acc)
       @
     }
     @
