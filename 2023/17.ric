@@ -4,7 +4,7 @@ load("general.ric")
 # heap allocation size. I really should fix so that ric-script
 # allocates the heap dynamically when needed..
 
-lines = getLines("inputs/17.small.txt")
+lines = getLines("inputs/17.txt")
 
 map = [[]] * lines.len()
 
@@ -30,7 +30,7 @@ directions = {"up": [-1, 0], "down": [1, 0], "left": [0, 1], "right": [0, -1]}
 directions_relative = ["left", "down", "right", "up"]
 
 visited = cachepot()
-losses = {}
+losses = cachepot()
 
 print("Building map...")
 i = 0
@@ -65,10 +65,6 @@ best_path = ""
 to_visit = minHeap()
 
 maxI = 0
-
-@ test() {
-  -> 1
-}
 
 @ djikstra() {
   # first 
@@ -182,115 +178,4 @@ print("OK!")
 
 #printMapWithBestPath()
 #
-
-exit(0)
-
-
-
-best_path = []
-best_rel_dirs = ""
-
-@ dp (i, j, d, relative_dir_idx, dirs, path, acc) {
-  ? [ !isIn(i,j) ] {
-    -> 0
-  }
-
-  pos = "" + i + "," + j
-
-  ? [ dirs.len() >= 4 ] {
-    ? [ dirs[-1] == dirs[-2] && dirs[-2] == dirs[-3] && dirs[-3] == dirs[-4] ] {
-      -> 0
-    }
-  }
-
-  ? [ visited.contains(pos) ] {
-    -> 0
-  }
-
-  print(pos)
-  path.append([i,j])
-  
-  indexes = [(relative_dir_idx-1+4)%4, relative_dir_idx%4, (relative_dir_idx+4+1)%4]
-  indexes_str = [ ( indexes ... i ) { 
-    directions_relative[i]
-  }]
-  indexes_str_rel = ["right", "forward", "left"]
-
-  q = 0
-  . [ q < indexes.len() ] {
-      d = directions_relative[relative_dir_idx]
-      dir = indexes_str[q]
-      q += 1
-      checks = directions[dir]
-      i_check = i + checks[0]
-      j_check = j + checks[1]
-      ? [ isIn(i_check, j_check) ] {
-        dirpaths = dirs + [indexes_str_rel[q-1]]
-        key = "" + i + "," + j + "," + dir
-        check_pos_key = "0,0-" + i_check + "," + j_check
-        endPos = 0
-        candidate_value = acc + losses[key]
-        continue = 1
-        ? [ dirpaths.len() >= 4 ] {
-          ? [ dirpaths[-1] == dirpaths[-2] && dirpaths[-2] == dirpaths[-3] && dirpaths[-3] == dirpaths[-4] ] {
-            @
-          }
-        }
-        ? [ i_check == len(map) - 1 && j_check == len(map[0]) - 1 ] {
-          endPos = 1
-          print("END POS: " + candidate_value)
-        }
-        ? [ candidate_value < min_losses[check_pos_key] ] {
-          min_losses[check_pos_key] = candidate_value
-          ? [ endPos ] {
-            print("New best val: " + candidate_value)
-            best_path = path + [[i_check, j_check]]
-            best_rel_dirs = dirpaths
-          }
-        }
-        ? [ !endPos ] {
-          v = dp(i_check, j_check, dir, indexes[q-1], dirpaths, path, candidate_value)
-        }
-     }
-    @
-  }
- 
-  visited.append(pos)
-
-}
-
-@ printMapWithBestPath() {
-  i = 0
-  acc = 0
-  . [ i < map.len() ] {
-    j = 0
-    . [ j < len(map[0]) ] {
-      ? [ best_path.contains([i,j]) ] {
-        printf("(" + map[i][j] + ")")
-        acc += map[i][j]
-      } ~ {
-        printf(" " + map[i][j] + " ")
-      }
-      j += 1
-      @
-    }
-    printf("    " + acc + "\n")
-    i += 1
-    @
-  }
-}
-
-
-
-
-
-print("Going in...")
-dp(0, 0, "", 0, [], [], 0)
-print("went out!")
-print(min_losses)
-
-print("Part 1: " + min_losses[final_key])
-
-printMapWithBestPath()
-print(best_rel_dirs)
 
