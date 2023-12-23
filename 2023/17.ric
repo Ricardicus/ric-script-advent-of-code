@@ -1,9 +1,5 @@
 load("general.ric")
 
-# The larger dataset requiers the -ah argument for increased 
-# heap allocation size. I really should fix so that ric-script
-# allocates the heap dynamically when needed..
-
 lines = getLines("inputs/17.txt")
 
 map = [[]] * lines.len()
