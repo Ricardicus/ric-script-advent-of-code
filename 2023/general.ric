@@ -11,3 +11,13 @@
   } 
   -> []
 }
+
+@ getGrid(file) {
+  ? [ file.isFile() ] {
+    lines = fileReadLines(file.fileOpen())
+    -> [ ( lines ... line ) {
+      [ (line ... c) { c.parseInt() }]
+    }]
+  }
+  -> []
+}
