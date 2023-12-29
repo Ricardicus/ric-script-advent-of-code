@@ -1,6 +1,12 @@
 load("general.ric")
 
-lines = getLines("inputs/12.txt")
+inputFile = "inputs/12.txt"
+
+? [ args[-1] == "small" ] {
+  inputFile = "inputs/12.small.txt"
+}
+
+lines = getLines(inputFile)
 
 # Cachepot, a simple dictionary type that only stores references.
 # I implemented this data type because I saw a need for faster
@@ -91,7 +97,6 @@ sumPartTwo = bigInt(0)
   folded_line = rules + " " + groups
   a = getNbrArrangements(folded_line)
   idx += 1
-  printf("\rworking on " + idx + " of " + len(lines) + "...")
   sumPartTwo += a
 }
 

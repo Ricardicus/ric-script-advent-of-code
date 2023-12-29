@@ -1,6 +1,12 @@
 load("general.ric")
 
-lines = getLines("inputs/17.txt")
+inputFile = "inputs/17.txt"
+
+? [ args[-1] == "small" ] {
+  inputFile = "inputs/17.small.txt"
+}
+
+lines = getLines(inputFile)
 
 map = [[]] * lines.len()
 
@@ -82,7 +88,6 @@ maxI = 0
 
     ? [ current[0] > maxI ] {
       maxI = current[0]
-      printf("\r" + maxI + " (" + (len(map) - 1) + ")")
     }
     indexes = [(c_dir_idx-1+4)%4, c_dir_idx%4, (c_dir_idx+4+1)%4]
     indexes_str = [ ( indexes ... i ) { 
@@ -96,7 +101,7 @@ maxI = 0
     ? [ min_heat_loss > acc && current_check_key == final_key ] {
         min_heat_loss = acc
         foundEnd = 1
-        print("\rPart 1: " + min_heat_loss)
+        print("Part 1: " + min_heat_loss)
     }
     ? [ visited.contains(c) ] {
       @
@@ -192,7 +197,6 @@ maxI = 0
 
     ? [ current[0] > maxI ] {
       maxI = current[0]
-      printf("\r" + maxI + " (" + (len(map) - 1) + ")")
     }
     indexes = [(c_dir_idx-1+4)%4, c_dir_idx%4, (c_dir_idx+4+1)%4]
     indexes_str = [ ( indexes ... i ) { 
@@ -206,7 +210,7 @@ maxI = 0
     ? [ min_heat_loss > acc && current_check_key == final_key && consecutive >= 4 ] {
         min_heat_loss = acc
         foundEnd = 1
-        print("\rPart 2: " + min_heat_loss)
+        print("Part 2: " + min_heat_loss)
         #best_path = positions
         -> 0
     }
