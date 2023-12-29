@@ -1,0 +1,105 @@
+load("general.ric")
+
+lines = getLines("inputs/7.txt")
+
+fs = {}
+
+@ get_contents(index, base) {
+    q = index
+    . [ q < len(lines) && lines[q][0] != "$" ] {
+        line = trim(lines[q])
+        name = line.split(" ")[1]
+        k = base+"/"+name+"/"
+        ? [ isnumeric(line[0]) ] {
+            fs[k] = parseInt(line.split(" ")[0])
+        } ~[ line.startsWith("dir") ] {
+            fs[k] = "dir"
+        }
+        q += 1
+        @
+    }
+}
+
+visited = {}
+
+file_sizes_count = {}
+
+@ get_file_size(loc) {
+    ? [ fs[loc] == "dir" ] {
+        c = 0
+        keys = sort(fs.keys())
+        . ( keys ... k ) {
+            ? [ k.startsWith(loc) && k != loc && !visited.contains(k) && fs[k] > 0] {
+                v = get_file_size(k)
+                visited[k] = v
+                c += v
+            }
+        }
+        -> c
+    } ~ {
+        ? [ visited.contains(loc+"/") ] {
+            -> visited[loc+"/"]
+        } ~ {
+            visited[loc] = fs[loc]
+        }
+        -> fs[loc]
+    }
+}
+
+i = 0
+root = ""
+current = "" 
+loc = []
+. [ i < len(lines) ] {
+    line = trim(lines[i])
+    s = line.split(" ")
+    ? [ s[1] == "cd" ] {
+        ? [ s[2] == ".." ] {
+            l = loc.pop()
+        } ~ {
+            current = s[2]
+            ? [ current != "/" ] {
+                loc.append(current)
+            }
+        }
+    }
+    ? [ s[1] == "ls" && len(loc) > 0] {
+        base = loc.join("/")
+        base = "/" + base
+        get_contents(i+1, base)
+        fs[base] = -1
+    }
+    i += 1
+    @
+}
+fs["/"] = "dir"
+
+
+total_occ = get_file_size("/")
+
+countMax = 100000
+count = 0
+ks = []
+. ( visited ... k ) {
+    ? [ visited[k] < countMax && fs[k] == "dir" && visited[k] > 0] {
+        ks.append(k)
+        count += visited[k]
+    }
+}
+
+print("Part 1: " + count)
+maxMem = 70000000
+need = 30000000
+limit = maxMem-need
+
+potential = []
+min = 99999999
+. ( visited ... k ) {
+    ? [ maxMem - total_occ + visited[k] > need ] {
+        ? [ visited[k] < min ] {
+            min = visited[k]
+        }
+    }
+}
+
+print("Part 2: "+min)

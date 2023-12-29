@@ -1,0 +1,51 @@
+load("general.ric")
+
+lines = getLines("inputs/6.txt")
+
+stream = lines[0]
+
+@ all_unique(p) {
+    count = {}
+    . ( p ... c ) {
+        ? [ count.contains(c) ] {
+            -> 0
+        }
+        count[c] = 1
+    }
+    -> 1
+}
+
+@ partOne() {
+  index = 4 
+  start_marker = [ ( stream[:4] ... x ) { x } ]
+  . ( stream[4:] ... c ) {
+      ? [ all_unique(start_marker) ] {
+          -> index
+      }
+      a = start_marker.popFirst()
+      start_marker.append(c)
+      index += 1
+  }
+  -> 0
+}
+
+print("Part 1: " + partOne())
+
+start_marker = [ ( stream[:4] ... x ) { x } ]
+index = 14
+
+@ partTwo() {
+  start_marker = [ ( stream[:14] ... x ) { x } ]
+  index = 14
+  . ( stream[14:] ... c ) {
+      ? [ all_unique(start_marker) ] {
+          -> index
+      }
+      a = start_marker.popFirst()
+      start_marker.append(c)
+      index += 1
+  }
+  -> 0
+}
+
+print("Part 2: " + partTwo())
