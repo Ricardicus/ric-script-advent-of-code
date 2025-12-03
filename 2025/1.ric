@@ -1,0 +1,37 @@
+load("general.ric")
+
+@ main() {
+  lines = getLines("inputs/1.txt")
+  countPart1 = 0
+  countPart2 = 0
+  dial = 50
+  . ( lines ... line ) {
+    action = line[0]
+
+    c = parseInt(line[1:])
+    f = 1
+    ? [ action == "L" ] {
+      f = -1
+    }
+
+    i = 0
+    . [ i < c ] {
+      dial = (100 + dial + f) % 100
+      i += 1
+      ? [ dial == 0 ] {
+        countPart2 += 1
+      }
+      @
+    }
+    ? [ dial == 0 ] {
+      countPart1 += 1
+    }
+  }
+  print("Part 1")
+  print(countPart1)
+  print("Part 2")
+  print(countPart2)
+}
+
+main()
+

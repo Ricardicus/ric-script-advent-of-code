@@ -1,0 +1,87 @@
+
+load("general.ric")
+
+@ part1() {
+  lines = getLines("inputs/2.txt")
+ 
+  ranges = split(lines[0],",")
+  invalids = []
+  . ( ranges ... range ) {
+    start = bigInt(split(range, "-")[0])
+    end = bigInt(split(range, "-")[1])
+
+    i = start
+    . [ i <= end ] {
+      ii = text(i)
+      ? [ ii.len() % 2 == 0 ] {
+        l = ii.len()
+        q = l / 2
+        ? [ ii[:q] == ii[q:] ] {
+          invalids.push(bigInt(ii))
+        }
+      }
+      i += 1
+      @
+    }
+  }
+  print("Part 1")
+  print(sum(invalids))
+}
+
+
+@ part2() {
+  lines = getLines("inputs/2.txt")
+ 
+  ranges = split(lines[0],",")
+  invalids = []
+  . ( ranges ... range ) {
+    start = bigInt(split(range, "-")[0])
+    end   = bigInt(split(range, "-")[1])
+
+    i = start
+    . [ i <= end ] {
+      ii = text(i)
+      l  = ii.len()
+
+      found = 0 
+      q = l
+      . [ q > 1 ] {
+        ? [ l % q == 0 ] {
+          a = l / q        # length of each chunk
+          chunk = ii[:a]   # first chunk
+          allSame = 1 
+
+          pos = a
+          . [ pos < l ] {
+            qq = pos+a
+            ? [ ii[pos:qq] != chunk ] {
+              allSame = 0
+            } ~ {
+              pos += a
+              @
+            }
+          }
+
+          ? [ allSame ] {
+            found = 1
+          }
+        }
+
+        q -= 1
+        @
+      }
+
+      ? [ found ] {
+        invalids.push(bigInt(ii))
+      }
+
+      i += 1
+      @
+    }
+  }
+  print("Part 2")
+  print(sum(invalids))
+}
+
+part1()
+part2()
